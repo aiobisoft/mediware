@@ -2,6 +2,17 @@ export function billingLibs(): string {
   return 'billing-libs';
 }
 
+export type MedicineTypes =
+  | 'Capsule'
+  | 'Tablets'
+  | 'Syrups'
+  | 'Ointments'
+  | 'Suppositories'
+  | 'Injections'
+  | 'Drips'
+  | 'Other'
+  | '';
+
 export interface ISupplier {
   id?: number;
   emails: string;
@@ -26,24 +37,25 @@ export interface IMedicine {
   name: string;
   formula?: string;
   brand?: string;
+  type?: MedicineTypes;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  InvoiceMedicine: IInvoiceMedicine[];
+  InvoiceMedicine?: IInvoiceMedicine[];
 }
 
 export interface IInvoice {
   id?: number;
   invoiceNumber: string;
-  invoiceData: Date;
+  invoiceDate: Date;
   total: number;
-  InvoiceMedicine: IInvoiceMedicine;
-  salesTax: number;
-  supplierId: number;
-  Supplier: ISupplier;
-  deliveredBy: string;
-  bookingDriver: string;
-  status: string;
+  InvoiceMedicine?: IInvoiceMedicine[];
+  salesTax?: number;
+  supplierId?: number;
+  Supplier?: ISupplier;
+  deliveredBy?: string;
+  bookingDriver?: string;
+  status?: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

@@ -1,13 +1,13 @@
-import { useLocation } from 'react-router-dom';
+import React, { useCallback, useContext, useState } from 'react';
+import MedicineForm from './MedicineForm';
 import Modal from '../../../shared/organisms/Modal';
-import { useCallback, useContext, useState } from 'react';
-import { Button } from '@fluentui/react-components';
+import { useLocation } from 'react-router-dom';
 import { getLastRouteItem } from '../../../utils/common';
-import SupplierForm from './SupplierForm';
-import Table from '../../../shared/organisms/Table';
+import { Button } from '@fluentui/react-components';
 import { MedicineContext } from '../../../state/contexts/MedicineContext';
+import Table from '../../../shared/organisms/Table';
 
-const Suppliers = () => {
+const Medicines = () => {
   const location = useLocation();
 
   const { medicineList, deleteMedicine, updateMedicine } =
@@ -16,6 +16,7 @@ const Suppliers = () => {
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
   );
+
   const toggleModel = useCallback(
     () => setIsCreatingRecord(!isCreatingRecord),
     [isCreatingRecord]
@@ -29,10 +30,10 @@ const Suppliers = () => {
         hideClose={false}
         modalType="modal"
         setIsOpen={setIsCreatingRecord}
-        title="Add Supplier"
-        triggerButton={<Button onClick={toggleModel}>Add New</Button>}
+        title="Add Medicine"
+        triggerButton={<Button onClick={toggleModel}>Add Medicine</Button>}
       >
-        <SupplierForm />
+        <MedicineForm />
       </Modal>
       <div>
         {medicineList && medicineList?.length > 0 && (
@@ -48,4 +49,4 @@ const Suppliers = () => {
   );
 };
 
-export default Suppliers;
+export default Medicines;

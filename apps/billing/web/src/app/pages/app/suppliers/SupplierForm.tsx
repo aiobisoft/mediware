@@ -9,12 +9,12 @@ import { Button, Divider } from '@fluentui/react-components';
 import { handleChange } from '../../../utils/common';
 import InputField from '../../../shared/molecules/InputField';
 import { ISupplier } from '@billinglib';
-import { SupplierListCtx } from '../../../state/contexts/SupplierContext';
+import { SupplierContext } from '../../../state/contexts/SupplierContext';
 
 const SupplierForm = () => {
   const [showAdditionalDetails, setShowAdditionalDetails] = useState(false);
 
-  const { createSupplier } = useContext(SupplierListCtx);
+  const { createSupplier } = useContext(SupplierContext);
 
   const [newSupplier, setNewSupplier] = useState<ISupplier>({
     addressLine1: '',

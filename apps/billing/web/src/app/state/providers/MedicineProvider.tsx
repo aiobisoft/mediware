@@ -23,9 +23,11 @@ const MedicineProvider = ({ children }: Props) => {
   const createMedicine = useCallback(
     async (newMedicine: IMedicine) => {
       setIsLoading(true);
-      await HttpClient().post('/medicine', newMedicine);
+      const responseData = (await HttpClient().post('/medicine', newMedicine))
+        .data;
       await getMedicines();
       setIsLoading(false);
+      return responseData;
     },
     [getMedicines]
   );

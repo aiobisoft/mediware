@@ -106,27 +106,29 @@ const SupplierForm = () => {
             labelSize="medium"
             required
           />
-          <InputField
-            name="addressLine1"
-            value={newSupplier?.addressLine1}
-            onChange={handleOnChange}
-            label="Address Line 1"
-            placeholder="Enter address line 1"
-            type="text"
-            fieldSize="large"
-            labelSize="medium"
-            required
-          />
-          <InputField
-            name="addressLine2"
-            value={newSupplier?.addressLine2}
-            onChange={handleOnChange}
-            label="Address Line 2"
-            placeholder="Enter address line 2 (Optional)"
-            type="text"
-            fieldSize="large"
-            labelSize="medium"
-          />
+          <div className="flex flex-row gap-3">
+            <InputField
+              name="addressLine1"
+              value={newSupplier?.addressLine1}
+              onChange={handleOnChange}
+              label="Address Line 1"
+              placeholder="Enter address line 1"
+              type="text"
+              fieldSize="large"
+              labelSize="medium"
+              required
+            />
+            <InputField
+              name="addressLine2"
+              value={newSupplier?.addressLine2}
+              onChange={handleOnChange}
+              label="Address Line 2"
+              placeholder="Enter address line 2 (Optional)"
+              type="text"
+              fieldSize="large"
+              labelSize="medium"
+            />
+          </div>
           <Divider className="my-3" />
         </>
       )}

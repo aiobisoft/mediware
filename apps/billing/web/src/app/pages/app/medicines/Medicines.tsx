@@ -22,6 +22,18 @@ const Medicines = () => {
     [isCreatingRecord]
   );
 
+  const getFilteredData = useCallback(() => {
+    if (medicineList) {
+      return medicineList.map((medicine) => ({
+        Id: medicine.id,
+        'Medicine Name': medicine.name,
+        Brand: medicine.brand,
+        Formula: medicine.formula,
+        Type: medicine.type,
+      }));
+    }
+  }, []);
+
   return (
     <div>
       <div className="p-2 text-gray-400">{location.pathname}</div>
@@ -38,8 +50,7 @@ const Medicines = () => {
       <div>
         {medicineList && medicineList?.length > 0 && (
           <Table
-            headers={[]}
-            data={medicineList}
+            data={getFilteredData() as unknown as []}
             onDelete={deleteMedicine}
             onEdit={updateMedicine}
           />

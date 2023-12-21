@@ -5,13 +5,13 @@ import { Button } from '@fluentui/react-components';
 import { getLastRouteItem } from '../../../utils/common';
 import SupplierForm from './SupplierForm';
 import Table from '../../../shared/organisms/Table';
-import { MedicineContext } from '../../../state/contexts/MedicineContext';
+import { SupplierContext } from '../../../state/contexts/SupplierContext';
 
 const Suppliers = () => {
   const location = useLocation();
 
-  const { medicineList, deleteMedicine, updateMedicine } =
-    useContext(MedicineContext);
+  const { supplierList, updateSupplier, deleteSupplier } =
+    useContext(SupplierContext);
 
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
@@ -20,6 +20,18 @@ const Suppliers = () => {
     () => setIsCreatingRecord(!isCreatingRecord),
     [isCreatingRecord]
   );
+
+  const getFilteredData = useCallback(() => {
+    if (supplierList)
+      return supplierList.map((supplier) => ({
+        Id: supplier.id,
+        Supplier: supplier.name,
+        'Phone No.': supplier.telephones,
+        Emails: supplier.emails,
+        'Whatsapp Tel': supplier.whatsapps,
+      }));
+    return [];
+  }, []);
 
   return (
     <div>
@@ -35,12 +47,11 @@ const Suppliers = () => {
         <SupplierForm />
       </Modal>
       <div>
-        {medicineList && medicineList?.length > 0 && (
+        {supplierList && supplierList?.length > 0 && (
           <Table
-            headers={[]}
-            data={medicineList}
-            onDelete={deleteMedicine}
-            onEdit={updateMedicine}
+            data={getFilteredData() as unknown as []}
+            onDelete={deleteSupplier}
+            onEdit={updateSupplier}
           />
         )}
       </div>

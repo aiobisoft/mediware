@@ -40,10 +40,13 @@ const ListSelectors = <Type,>({
       {searchQuery !== undefined && (
         <div className="my-3 flex flex-row gap-2">
           <InputField
+            disabled={!list.length}
             name="searchSupplierField"
             value={searchQuery}
             onChange={handleChange}
-            placeholder="Search..."
+            placeholder={
+              list.length ? 'Search...' : 'No data in system, please add data'
+            }
             fieldSize="large"
             type="text"
           />

@@ -1,7 +1,7 @@
 import Fastify from 'fastify';
 import { app } from './app/app';
 import cors from '@fastify/cors';
-import { networkInterfaces } from 'os';
+// import { networkInterfaces } from 'os';
 
 const host = process.env.HOST ?? '0.0.0.0';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -23,7 +23,7 @@ server.listen({ port, host }, (err) => {
   } else {
     console.log(server.printRoutes({ commonPrefix: true }));
     console.log(`[ ready ] http://${host}:${port}`);
-    console.log('Your configured IP (mostl likey)');
+    console.log('Available NICs');
     // console.log(JSON.stringify(networkInterfaces(), null, 2));
     // print routes
     // console.log(server.printRoutes())

@@ -8,22 +8,19 @@ import {
 import { Button, Divider, MenuItem } from '@fluentui/react-components';
 import { handleChange } from '../../../utils/common';
 import InputField from '../../../shared/molecules/InputField';
-import { IMedicine } from '@billinglib';
+import { IMedicine, MedicineTypes } from '@billinglib';
 import Menu from '../../../shared/organisms/Menu';
 import { MedicineContext } from '../../../state/contexts/MedicineContext';
 
-const MedicineForm = () => {
-  const MedicineTypes = [
-    'Capsule',
-    'Tablets',
-    'Syrups',
-    'Ointments',
-    'Suppositories',
-    'Injections',
-    'Drips',
-    'Other',
-  ];
+interface Props {
+  formType?: 'new-entry' | 'edit-existing';
+  onRegisterNewDevice?: (data: IMedicine) => void;
+}
 
+const MedicineForm = ({
+  formType = 'new-entry',
+  onRegisterNewDevice,
+}: Props) => {
   const [newMedicine, setNewMedicine] = useState<IMedicine>({
     name: '',
     brand: '',
@@ -49,7 +46,7 @@ const MedicineForm = () => {
     async (ev: FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
       if (createMedicine) {
-        await createMedicine(newMedicine);
+        createMedicine(newMedicine);
       }
     },
     [createMedicine, newMedicine]
@@ -89,20 +86,22 @@ const MedicineForm = () => {
           </Menu>
         </div>
       </div>
-      <InputField
-        name="brand"
-        value={newMedicine?.brand ?? ''}
-        onChange={handleOnChange}
-        label="Brand"
-        placeholder="Brand"
-      />
-      <InputField
-        name="formula"
-        value={newMedicine?.formula ?? ''}
-        onChange={handleOnChange}
-        label="Forumula"
-        placeholder="Medicine Formula"
-      />
+      <div className="flex flex-row gap-3">
+        <InputField
+          name="brand"
+          value={newMedicine?.brand ?? ''}
+          onChange={handleOnChange}
+          label="Brand"
+          placeholder="Brand"
+        />
+        <InputField
+          name="formula"
+          value={newMedicine?.formula ?? ''}
+          onChange={handleOnChange}
+          label="Forumula"
+          placeholder="Medicine Formula"
+        />
+      </div>
       <Divider className="my-3" />
       <Button type="submit" size="large" appearance="primary">
         Submit

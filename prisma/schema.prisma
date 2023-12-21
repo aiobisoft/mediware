@@ -63,12 +63,12 @@ model InvoiceMedicine {
   id                 Int       @id @default(autoincrement())
   batchIdentifier    String
   packing            String
-  expiry             DateTime
+  expirey            DateTime
   unitTakePrice      Float
   unitSalePrice      Float
   discountPercentage Float     @default(0.0)
   discountedAmount   Float     @default(0.0)
-  advTaxPercentatge  Float     @default(0.0)
+  advTax             Float     @default(0.0)
   quantity           Int
   medicineId         Int
   Medicine           Medicine  @relation(fields: [medicineId], references: [id])

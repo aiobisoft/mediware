@@ -6,6 +6,7 @@ import { getLastRouteItem } from '../../../utils/common';
 import SupplierForm from './SupplierForm';
 import Table from '../../../shared/organisms/Table';
 import { SupplierContext } from '../../../state/contexts/SupplierContext';
+import { ISupplier } from '@billinglib';
 
 const Suppliers = () => {
   const location = useLocation();
@@ -13,6 +14,7 @@ const Suppliers = () => {
   const { supplierList } = useContext(SupplierContext);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentlyViewing, setCurrentlyViewing] = useState<ISupplier>();
 
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
@@ -21,6 +23,16 @@ const Suppliers = () => {
     () => setIsCreatingRecord(!isCreatingRecord),
     [isCreatingRecord]
   );
+
+  const onViewData = useCallback((_: ISupplier, index: number) => {
+    if (supplierList) {
+      setCurrentlyViewing(supplierList[index]);
+    }
+  }, []);
+
+  const clearCurrentlyViewing = useCallback(() => {
+    setCurrentlyViewing(undefined);
+  }, []);
 
   const getFilteredData = useCallback(() => {
     if (supplierList)
@@ -59,6 +71,11 @@ const Suppliers = () => {
       >
         <SupplierForm />
       </Modal>
+      <Modal isOpen={!!currentlyViewing} onClosePressed={clearCurrentlyViewing}>
+        {!!clearCurrentlyViewing && (
+          <div>{JSON.stringify(currentlyViewing)}</div>
+        )}
+      </Modal>
       <div className="flex flex-row justify-end">
         <Input
           type="search"
@@ -73,6 +90,7 @@ const Suppliers = () => {
             data={getFilteredData() as unknown as []}
             // onDelete={deleteSupplier}
             // onEdit={updateSupplier}
+            onViewData={onViewData}
           />
         )}
       </div>

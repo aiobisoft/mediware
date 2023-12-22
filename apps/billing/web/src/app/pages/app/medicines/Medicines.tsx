@@ -6,6 +6,7 @@ import { getLastRouteItem } from '../../../utils/common';
 import { Button, Input } from '@fluentui/react-components';
 import { MedicineContext } from '../../../state/contexts/MedicineContext';
 import Table from '../../../shared/organisms/Table';
+import { IMedicine } from '@billinglib';
 
 const Medicines = () => {
   const location = useLocation();
@@ -13,6 +14,7 @@ const Medicines = () => {
   const { medicineList } = useContext(MedicineContext);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentlyViewing, setCurrentlyViewing] = useState<IMedicine>();
 
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
@@ -22,6 +24,16 @@ const Medicines = () => {
     () => setIsCreatingRecord(!isCreatingRecord),
     [isCreatingRecord]
   );
+
+  const onViewData = useCallback((_: IMedicine, index: number) => {
+    if (medicineList) {
+      setCurrentlyViewing(medicineList[index]);
+    }
+  }, []);
+
+  const clearCurrentlyViewing = useCallback(() => {
+    setCurrentlyViewing(undefined);
+  }, []);
 
   const getFilteredData = useCallback(() => {
     if (medicineList) {
@@ -58,6 +70,11 @@ const Medicines = () => {
       >
         <MedicineForm />
       </Modal>
+      <Modal isOpen={!!currentlyViewing} onClosePressed={clearCurrentlyViewing}>
+        {!!clearCurrentlyViewing && (
+          <div>{JSON.stringify(currentlyViewing)}</div>
+        )}
+      </Modal>
       <div className="flex flex-row justify-end">
         <Input
           type="search"
@@ -72,6 +89,7 @@ const Medicines = () => {
             data={getFilteredData() as unknown as []}
             // onDelete={deleteMedicine}
             // onEdit={updateMedicine}
+            onViewData={onViewData}
           />
         )}
       </div>

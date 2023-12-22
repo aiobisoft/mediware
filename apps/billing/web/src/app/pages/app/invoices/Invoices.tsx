@@ -7,12 +7,13 @@ import { Button, Input } from '@fluentui/react-components';
 import { InvoiceContext } from '../../../state/contexts/InvoiceContext';
 import moment from 'moment';
 import Table from '../../../shared/organisms/Table';
-import { APP_ROUNDOFF_SETTING } from '@billinglib';
+import { APP_ROUNDOFF_SETTING, IInvoice } from '@billinglib';
 
 const Invoices = () => {
   const location = useLocation();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentlyViewing, setCurrentlyViewing] = useState<IInvoice>();
 
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
@@ -24,6 +25,16 @@ const Invoices = () => {
     () => setIsCreatingRecord(!isCreatingRecord),
     [isCreatingRecord]
   );
+
+  const onViewData = useCallback((_: IInvoice, index: number) => {
+    if (invoiceList) {
+      setCurrentlyViewing(invoiceList[index]);
+    }
+  }, []);
+
+  const clearCurrentlyViewing = useCallback(() => {
+    setCurrentlyViewing(undefined);
+  }, []);
 
   const getFilteredData = useCallback(() => {
     if (invoiceList) {
@@ -63,6 +74,9 @@ const Invoices = () => {
       >
         <InvoiceForm />
       </Modal>
+      <Modal isOpen={!!currentlyViewing} onClosePressed={clearCurrentlyViewing}>
+        {!!currentlyViewing && <div>{JSON.stringify(currentlyViewing)}</div>}
+      </Modal>
       <div className="flex flex-row justify-end">
         <Input
           type="search"
@@ -75,8 +89,8 @@ const Invoices = () => {
         {invoiceList && invoiceList?.length > 0 && (
           <Table
             data={getFilteredData() as unknown as []}
-            // onDelete={deleteInvoice}
             // onEdit={updateInvoice}
+            onViewData={onViewData}
           />
         )}
       </div>

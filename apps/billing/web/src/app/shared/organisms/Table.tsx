@@ -16,6 +16,7 @@ interface Props<Type> {
   onDelete?: (data: Type, index: number) => void;
   onEdit?: (data: Type, index: number) => void;
   onAddData?: () => void;
+  onViewData?: (data: Type, index: number) => void;
 }
 
 const Table = <Type,>({
@@ -23,7 +24,7 @@ const Table = <Type,>({
   onDelete,
   onEdit,
   headers,
-  onAddData,
+  onViewData,
 }: Props<Type>) => {
   return (
     <div className="w-full overflow-auto min-h-[80vh]">
@@ -61,10 +62,15 @@ const Table = <Type,>({
                       </TableCell>
                     );
                   })}
-                  {(onEdit || onDelete) && (
+                  {(onEdit || onDelete || onViewData) && (
                     <TableCell>
                       <div className="flex flex-row gap-2">
                         <Menu button={<Button>Action</Button>}>
+                          {onViewData && (
+                            <MenuItem onClick={() => onViewData(row, index)}>
+                              View
+                            </MenuItem>
+                          )}
                           {onEdit && (
                             <MenuItem onClick={() => onEdit(row, index)}>
                               Edit

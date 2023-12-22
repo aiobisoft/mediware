@@ -78,7 +78,7 @@ export interface IInvoiceMedicine {
   id?: number;
   batchIdentifier: string;
   quantity: number;
-  pack: string;
+  packing: string;
   expirey: Date;
   unitTakePrice: number;
   unitSalePrice: number;

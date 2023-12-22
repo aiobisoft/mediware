@@ -10,8 +10,7 @@ import Table from '../../../shared/organisms/Table';
 const Medicines = () => {
   const location = useLocation();
 
-  const { medicineList, deleteMedicine, updateMedicine } =
-    useContext(MedicineContext);
+  const { medicineList } = useContext(MedicineContext);
 
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
@@ -51,8 +50,8 @@ const Medicines = () => {
         {medicineList && medicineList?.length > 0 && (
           <Table
             data={getFilteredData() as unknown as []}
-            onDelete={deleteMedicine}
-            onEdit={updateMedicine}
+            // onDelete={deleteMedicine}
+            // onEdit={updateMedicine}
           />
         )}
       </div>

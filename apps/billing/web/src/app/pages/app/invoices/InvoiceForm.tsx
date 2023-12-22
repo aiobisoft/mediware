@@ -38,10 +38,13 @@ import { STATAUS } from '../../../utils/types';
 import { MedicineContext } from '../../../state/contexts/MedicineContext';
 import moment from 'moment';
 import Table from '../../../shared/organisms/Table';
+import { InvoiceContext } from '../../../state/contexts/InvoiceContext';
 
 const InvoiceForm = () => {
   const { supplierList } = useContext(SupplierContext);
   const { medicineList } = useContext(MedicineContext);
+  const { createInvoice, getInvoices } = useContext(InvoiceContext);
+
   const [stepCount, setStepCount] = useState(0);
   const [showInvoiceItems, setShowInvoiceItems] = useState(false);
   // const [currentInvoiceIndex, setCurrentInvoiceIndex] = useState(0);
@@ -54,17 +57,14 @@ const InvoiceForm = () => {
   const [newInvoiceItemBeingEntered, setNewInvoiceItemBeingEntered] =
     useState<IInvoiceMedicine>({
       Medicine: { name: '', brand: '', formula: '', type: '' },
-
       batchIdentifier: '',
       quantity: 0,
-      pack: '',
+      packing: '',
       expirey: new Date(),
       unitTakePrice: 0,
       unitSalePrice: 0,
-
       discountPercentage: 0,
       advTax: 0,
-
       discountedAmount: 0,
       netAmount: 0,
     });
@@ -133,6 +133,24 @@ const InvoiceForm = () => {
     );
   }, [medicineList, medicineSearchText]);
 
+  const calculateInvoiceTotal = useCallback(() => {
+    const netAmounts = invoiceData.InvoiceMedicine?.map(
+      (invoiceItem) => invoiceItem.netAmount
+    );
+    if (netAmounts && netAmounts?.length > 0) {
+      const sum = (netAmounts ?? [0, 0, 0]).reduce((a, b) => a + b);
+      setInvoiceData({
+        ...invoiceData,
+        total: sum,
+      });
+    } else {
+      setInvoiceData({
+        ...invoiceData,
+        total: 0,
+      });
+    }
+  }, [invoiceData]);
+
   const addNewItemOnInvoice = useCallback(() => {
     setInvoiceData({
       ...invoiceData,
@@ -147,7 +165,7 @@ const InvoiceForm = () => {
 
       batchIdentifier: '',
       quantity: 0,
-      pack: '',
+      packing: '',
       expirey: new Date(),
       unitTakePrice: 0,
       unitSalePrice: 0,
@@ -190,19 +208,27 @@ const InvoiceForm = () => {
       discountAmount !== undefined &&
       newInvoiceItemBeingEntered.advTax !== undefined
     ) {
+      const netAmountWithoutTax =
+        (parseFloat(getValueOfForm('unitSalePrice')) -
+          parseFloat(sanitizeNaN(discountAmount))) *
+        parseFloat(newInvoiceItemBeingEntered?.quantity.toString());
+
       const netAmount =
-        parseFloat(getValueOfForm('unitSalePrice')) *
-          parseFloat(newInvoiceItemBeingEntered?.quantity.toString()) +
-        parseFloat(newInvoiceItemBeingEntered.advTax.toString()) -
-        parseFloat(sanitizeNaN(discountAmount));
+        parseFloat(sanitizeNaN(netAmountWithoutTax.toString())) +
+        parseFloat(
+          newInvoiceItemBeingEntered.advTax
+            ? newInvoiceItemBeingEntered.advTax.toString()
+            : '0'
+        );
 
       handleChange(
         'netAmount',
-        parseFloat(sanitizeNaN(netAmount.toString())),
+        netAmount,
         newInvoiceItemBeingEntered,
         setNewInvoiceItemBeingEntered
       );
     }
+    calculateInvoiceTotal();
   }, [getValueOfForm, newInvoiceItemBeingEntered]);
 
   const handleOnChangeCurrentInvoiceItem = useCallback(
@@ -232,7 +258,10 @@ const InvoiceForm = () => {
   const handleSubmit = useCallback(
     async (ev: FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
-      console.log(JSON.stringify(invoiceData, null, 2));
+      if (createInvoice && getInvoices) {
+        await createInvoice(invoiceData);
+        await getInvoices();
+      }
     },
     [invoiceData]
   );
@@ -423,15 +452,18 @@ const InvoiceForm = () => {
                   }}
                   data={invoiceData?.InvoiceMedicine?.map((medicine) => ({
                     Name: medicine.Medicine?.name,
-                    Packing: medicine.pack,
+                    Packing: medicine.packing,
                     Batch: medicine.batchIdentifier,
                     Expirey: moment(medicine.expirey).format('DD/MM/YYYY'),
                     Quantity: medicine.quantity,
                     'Unit Price': medicine.unitSalePrice,
-                    'Gross Amt': medicine.unitSalePrice * medicine.quantity,
+                    'Gross Amt': (
+                      medicine.unitSalePrice * medicine.quantity
+                    ).toFixed(APP_ROUNDOFF_SETTING),
                     'Dis %': medicine?.discountPercentage,
                     'Adv.Tax': medicine?.advTax,
-                    'Net Amount': medicine?.netAmount,
+                    'Net Amount':
+                      medicine.netAmount?.toFixed(APP_ROUNDOFF_SETTING),
                   }))}
                 />
               )}
@@ -499,8 +531,8 @@ const InvoiceForm = () => {
               </div>
               <div className="flex flex-row gap-2">
                 <InputField
-                  name="pack"
-                  value={newInvoiceItemBeingEntered?.pack ?? ''}
+                  name="packing"
+                  value={newInvoiceItemBeingEntered?.packing ?? ''}
                   placeholder="10mg, 10x10 ..."
                   onChange={handleOnChangeCurrentInvoiceItem}
                   label="Packing type"
@@ -567,36 +599,17 @@ const InvoiceForm = () => {
                   type="number"
                   label="Adv Tax "
                 />
+
                 <InputField
                   disabled
                   name="grossAmount"
-                  value={(
-                    newInvoiceItemBeingEntered.quantity *
-                    newInvoiceItemBeingEntered.unitSalePrice
-                  ).toFixed(APP_ROUNDOFF_SETTING)}
+                  value={newInvoiceItemBeingEntered?.netAmount.toFixed(
+                    APP_ROUNDOFF_SETTING
+                  )}
                   placeholder="Gross Amount"
                   onChange={handleOnChangeInvoice}
                   label="Gross Amount"
                   type="number"
-                />
-              </div>
-              <div className="flex flex-row gap-2 items-center my-2">
-                <Text
-                  className="flex-1 text-center"
-                  align="center"
-                  size={400}
-                  italic
-                  weight="bold"
-                >
-                  Net Amount
-                </Text>
-                <InputField
-                  disabled
-                  name="valueAfterAdvTaxPercentatge"
-                  value={newInvoiceItemBeingEntered?.netAmount.toFixed(
-                    APP_ROUNDOFF_SETTING
-                  )}
-                  onChange={handleOnChangeCurrentInvoiceItem}
                 />
               </div>
 
@@ -607,14 +620,40 @@ const InvoiceForm = () => {
                   name="newMedicineName"
                   value={newInvoiceItemBeingEntered?.Medicine?.name ?? ''}
                   placeholder="Medicine Name"
-                  onChange={handleOnChangeCurrentInvoiceItem}
+                  onChange={(e) => {
+                    if (
+                      newInvoiceItemBeingEntered &&
+                      newInvoiceItemBeingEntered.Medicine
+                    ) {
+                      setNewInvoiceItemBeingEntered({
+                        ...newInvoiceItemBeingEntered,
+                        Medicine: {
+                          ...newInvoiceItemBeingEntered.Medicine,
+                          name: e.target.value,
+                        },
+                      });
+                    }
+                  }}
                   label="Medicine name"
                 />
                 <InputField
                   name="newMedicineBrand"
                   value={newInvoiceItemBeingEntered?.Medicine?.brand ?? ''}
                   placeholder="Medicine Brand"
-                  onChange={handleOnChangeCurrentInvoiceItem}
+                  onChange={(e) => {
+                    if (
+                      newInvoiceItemBeingEntered &&
+                      newInvoiceItemBeingEntered.Medicine
+                    ) {
+                      setNewInvoiceItemBeingEntered({
+                        ...newInvoiceItemBeingEntered,
+                        Medicine: {
+                          ...newInvoiceItemBeingEntered.Medicine,
+                          brand: e.target.value,
+                        },
+                      });
+                    }
+                  }}
                   label="Medicine brand"
                 />
               </div>
@@ -623,7 +662,20 @@ const InvoiceForm = () => {
                   name="newMedicineFormula"
                   value={newInvoiceItemBeingEntered?.Medicine?.formula ?? ''}
                   placeholder="Medicine Formula"
-                  onChange={handleOnChangeCurrentInvoiceItem}
+                  onChange={(e) => {
+                    if (
+                      newInvoiceItemBeingEntered &&
+                      newInvoiceItemBeingEntered.Medicine
+                    ) {
+                      setNewInvoiceItemBeingEntered({
+                        ...newInvoiceItemBeingEntered,
+                        Medicine: {
+                          ...newInvoiceItemBeingEntered.Medicine,
+                          formula: e.target.value,
+                        },
+                      });
+                    }
+                  }}
                   label="Medicine formula"
                 />
                 <div className="flex flex-col min-w-[120pt]">
@@ -683,27 +735,42 @@ const InvoiceForm = () => {
         </div>
       )}
       <Divider className="mb-3 mt-3" />
-      <div className="flex flex-row justify-end gap-2">
-        <Button
-          size="large"
-          disabled={stepCount <= 0}
-          onClick={() => setStepCount(stepCount - 1)}
-        >
-          Previouse
-        </Button>
-        {stepCount < 2 ? (
+      <div className="flex flex-row justify-between items-center gap-2">
+        <div className="font-semibold">
+          <span>Sum total: </span>
+          {(invoiceData?.total ?? 0).toFixed(APP_ROUNDOFF_SETTING)}/-
+        </div>
+        <div className="flex flex-row justify-end gap-2">
           <Button
             size="large"
-            disabled={stepCount >= 2}
-            onClick={() => setStepCount(stepCount + 1)}
+            disabled={stepCount <= 0}
+            onClick={() => setStepCount(stepCount - 1)}
           >
-            Next
+            Previouse
           </Button>
-        ) : (
-          <Button type="submit" size="large" appearance="primary">
-            Submit
-          </Button>
-        )}
+          {stepCount < 2 ? (
+            <Button
+              size="large"
+              disabled={stepCount >= 2}
+              onClick={() => setStepCount(stepCount + 1)}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              size="large"
+              appearance="primary"
+              disabled={
+                invoiceData &&
+                !!invoiceData.InvoiceMedicine &&
+                invoiceData.InvoiceMedicine.length <= 0
+              }
+            >
+              Submit
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );

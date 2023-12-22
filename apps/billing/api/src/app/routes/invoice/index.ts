@@ -1,80 +1,130 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const modelInvoiceData = {
-  invoiceNumber: '446',
-  invoiceDate: '1986-03-04T08:39',
-  bookingDriver: 'Beatae aut aut sunt',
-  deliveredBy: 'Eu et aute nobis imp',
-  salesTax: '10',
-  status: '',
-  total: 0,
-  InvoiceMedicine: [
-    {
-      Medicine: {
-        id: 4,
-        name: 'Panstan',
-        formula: 'Decanol',
-        brand: 'Abott',
-        type: 'Ointments',
-        createdAt: '2023-12-21T19:13:48.334Z',
-        updatedAt: '2023-12-21T19:13:48.334Z',
+import { FastifyInstance } from 'fastify';
+import { PrismaClient } from '@prisma/client';
+import { IInvoice } from '@billinglib';
+import moment from 'moment';
+
+const prisma = new PrismaClient();
+
+export default async function (fastify: FastifyInstance) {
+  fastify.get('/', async (req, rep) => {
+    const invoices = await prisma.invoice.findMany({
+      where: {
         deletedAt: null,
       },
-      batchIdentifier: "10's",
-      quantity: '20',
-      pack: 'Amet eveniet qui a',
-      expirey: '2006-03-01',
-      unitTakePrice: '105',
-      unitSalePrice: '105',
-      discountPercentage: '0',
-      advTax: '12.5',
-      discountedAmount: 0,
-      netAmount: 2112.5,
-      newMedicineName: 'Felicia Sellers',
-      newMedicineBrand: 'Porro praesentium ut',
-      newMedicineFormula: 'Qui quia quos vel qu',
-      medicineId: 4,
-    },
-    {
-      Medicine: {
-        id: 4,
-        name: 'Panstan',
-        formula: 'Decanol',
-        brand: 'Abott',
-        type: 'Ointments',
-        createdAt: '2023-12-21T19:13:48.334Z',
-        updatedAt: '2023-12-21T19:13:48.334Z',
-        deletedAt: null,
-      },
-      batchIdentifier: '',
-      quantity: '23',
-      pack: '123',
-      expirey: '2023-12-21T19:36:12.344Z',
-      unitTakePrice: '22',
-      unitSalePrice: '200',
-      discountPercentage: 0,
-      advTax: '2',
-      discountedAmount: 0,
-      netAmount: 4602,
-      medicineId: 4,
-    },
-  ],
-  supplierId: 12,
-  Supplier: {
-    id: 12,
-    emails: 'hello@skat.com',
-    name: 'Skat Bros Distributers',
-    city: 'Sialkot',
-    telephones: '03335166620',
-    addressLine1: 'Ukogi',
-    addressLine2: 'Zindagiabad',
-    whatsapps: '03335166620',
-    NTN: '',
-    STN: '',
-    licenseNumber: '',
-    TNNumber: '',
-    TRNNumber: '',
-    createdAt: '2023-12-21T19:02:39.791Z',
-    updatedAt: '2023-12-21T19:02:39.791Z',
-    deletedAt: null,
-  },
-};
+    });
+
+    rep.status(200).send(invoices);
+  });
+
+  fastify.post('/', async (req, rep) => {
+    try {
+      const requestBody = req.body as IInvoice;
+
+      const newInvoice = await prisma.invoice.create({
+        data: {
+          invoiceNumber: requestBody.invoiceNumber,
+          invoiceDate: moment(requestBody.invoiceDate).format(
+            'YYYY-MM-DDTHH:mm:ss.SSSZ'
+          ),
+          bookingDriver: requestBody.bookingDriver,
+          deliveredBy: requestBody.deliveredBy,
+          salesTax: parseFloat(requestBody.salesTax.toString()),
+          status: requestBody.status,
+          total: parseFloat(requestBody.total.toString()),
+          Supplier: {
+            connect: {
+              id: requestBody.Supplier.id,
+            },
+          },
+        },
+      });
+
+      const creationTasks = requestBody.InvoiceMedicine.map(
+        (invoiceMedicine) => {
+          if (invoiceMedicine.Medicine.id)
+            return prisma.invoiceMedicine.create({
+              data: {
+                batchIdentifier: invoiceMedicine.batchIdentifier,
+                quantity: parseInt(invoiceMedicine.quantity.toString()) || 1,
+                packing: invoiceMedicine.packing,
+                expirey: moment(invoiceMedicine.expirey).format(
+                  'YYYY-MM-DDTHH:mm:ss.SSSZ'
+                ),
+                unitTakePrice: parseFloat(
+                  invoiceMedicine.unitTakePrice.toString()
+                ),
+                unitSalePrice: parseFloat(
+                  invoiceMedicine.unitSalePrice.toString()
+                ),
+                discountPercentage:
+                  parseFloat(invoiceMedicine.discountPercentage.toString()) ||
+                  0,
+                netAmount:
+                  parseFloat(invoiceMedicine.netAmount.toString()) || 0,
+                advTax: parseFloat(invoiceMedicine.advTax.toString()) || 0,
+                discountedAmount: parseFloat(
+                  invoiceMedicine.discountedAmount.toString()
+                ),
+                Invoice: {
+                  connect: {
+                    id: newInvoice.id,
+                  },
+                },
+                Medicine: {
+                  connect: {
+                    id: invoiceMedicine.Medicine.id,
+                  },
+                },
+              },
+            });
+          else {
+            return prisma.invoiceMedicine.create({
+              data: {
+                batchIdentifier: invoiceMedicine.batchIdentifier,
+                quantity: parseInt(invoiceMedicine.quantity.toString()) || 1,
+                packing: invoiceMedicine.packing,
+                expirey: moment(invoiceMedicine.expirey).format(
+                  'YYYY-MM-DDTHH:mm:ss.SSSZ'
+                ),
+                unitTakePrice: parseFloat(
+                  invoiceMedicine.unitTakePrice.toString()
+                ),
+                unitSalePrice: parseFloat(
+                  invoiceMedicine.unitSalePrice.toString()
+                ),
+                discountPercentage:
+                  parseFloat(invoiceMedicine.discountPercentage.toString()) ||
+                  0,
+                netAmount:
+                  parseFloat(invoiceMedicine.netAmount.toString()) || 0,
+                advTax: parseFloat(invoiceMedicine.advTax.toString()) || 0,
+                discountedAmount: parseFloat(
+                  invoiceMedicine.discountedAmount.toString()
+                ),
+                Invoice: {
+                  connect: {
+                    id: newInvoice.id,
+                  },
+                },
+                Medicine: {
+                  create: {
+                    name: invoiceMedicine.Medicine.name,
+                    brand: invoiceMedicine.Medicine.brand,
+                    formula: invoiceMedicine.Medicine.formula,
+                    type: invoiceMedicine.Medicine.type,
+                  },
+                },
+              },
+            });
+          }
+        }
+      );
+
+      const results = await Promise.all(creationTasks);
+
+      rep.send(200).send({ data: results });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+}

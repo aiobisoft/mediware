@@ -10,8 +10,7 @@ import { SupplierContext } from '../../../state/contexts/SupplierContext';
 const Suppliers = () => {
   const location = useLocation();
 
-  const { supplierList, updateSupplier, deleteSupplier } =
-    useContext(SupplierContext);
+  const { supplierList } = useContext(SupplierContext);
 
   const [isCreatingRecord, setIsCreatingRecord] = useState(
     getLastRouteItem(location.pathname) === 'new'
@@ -50,8 +49,8 @@ const Suppliers = () => {
         {supplierList && supplierList?.length > 0 && (
           <Table
             data={getFilteredData() as unknown as []}
-            onDelete={deleteSupplier}
-            onEdit={updateSupplier}
+            // onDelete={deleteSupplier}
+            // onEdit={updateSupplier}
           />
         )}
       </div>

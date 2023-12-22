@@ -22,8 +22,8 @@ server.listen({ port, host }, (err) => {
     process.exit(1);
   } else {
     console.log(server.printRoutes({ commonPrefix: true }));
-    console.log(`[ ready ] http://${host}:${port}`);
     console.log('Available NICs');
+    console.log(`[ ready ] http://${host}:${port}`);
     // console.log(JSON.stringify(networkInterfaces(), null, 2));
     // print routes
     // console.log(server.printRoutes())

@@ -1,9 +1,9 @@
 
 Todo:
   ☐ show previous batches for that medicine while selecting batchNumber so its easier
-  ☐ implement login
-  ☐ implement logout
-  ☐ login if cookie hasn't expired
+  ✔ implement login @done(23-12-25 19:16)
+  ✔ implement logout @done(23-12-25 19:16)
+  ✔ login if cookie hasn't expired @done(23-12-25 19:16)
   ✔ implement edit invoice @done(23-12-25 17:00)
   ✔ Enable the editing @done(23-12-25 17:00)
   ✔ Add the login screen @done(23-12-25 17:00)

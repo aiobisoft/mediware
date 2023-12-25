@@ -5,5 +5,5 @@ export const AuthContext = createContext<{
   activeUser?: IUser;
   setActiveUser?: Dispatch<SetStateAction<IUser | undefined>>;
   loginUser?: (_: IUser) => Promise<void>;
-  logoutUser?: () => Promise<void>;
+  logoutUser?: () => void;
 }>({});

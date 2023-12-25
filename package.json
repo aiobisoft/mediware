@@ -15,7 +15,7 @@
     "dev": " npx nx run-many --target=serve --projects=billing-api,billing-web",
     "migrate": "prisma db push",
     "studio": "prisma studio",
-    "wipe":"dropdb mediware",
+    "wipe": "dropdb mediware",
     "api:run": "nx run billing-api:serve:development",
     "web:run": "nx run billing-web:serve:development",
     "api:build": "nx run billing-api:build:production",
@@ -26,6 +26,7 @@
   "dependencies": {
     "@fastify/autoload": "~5.7.1",
     "@fastify/cors": "^8.4.2",
+    "@fastify/jwt": "^7.2.4",
     "@fastify/sensible": "~5.2.0",
     "@fluentui/react-components": "^9.42.0",
     "@prisma/client": "^5.7.1",

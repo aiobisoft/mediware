@@ -44,6 +44,7 @@ const Login = () => {
         setAlert({
           error: 'Error',
           message: 'Please enter the password, it cannot be left empty',
+          shown: true,
         });
       }
       if (loginUser) {
@@ -81,7 +82,7 @@ const Login = () => {
             name="username"
             value={user.username}
             onChange={onChange}
-            label="Email"
+            label="Username"
             placeholder="Enter your username"
             type="text"
             required

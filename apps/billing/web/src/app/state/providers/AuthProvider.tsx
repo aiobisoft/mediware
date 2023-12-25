@@ -2,7 +2,7 @@ import { IUser } from '@billinglib';
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import Login from '../../pages/auth/Login';
-import { HttpClient } from '../../utils/common';
+import { HttpClient, apiCallAlertWrapper } from '../../utils/common';
 import { useAlert } from './AlertProvider';
 
 interface Props {
@@ -14,7 +14,7 @@ const AuthProvider = ({ children }: Props) => {
   const { setAlert } = useAlert();
 
   const isLoggedIn = useMemo((): boolean => {
-    if (activeUser && (activeUser?.username || activeUser.email)) {
+    if (activeUser && activeUser?.token) {
       return true;
     }
     return false;
@@ -24,8 +24,6 @@ const AuthProvider = ({ children }: Props) => {
     async (userInfo: IUser) => {
       const loginResponse = (await HttpClient().post('/user/login', userInfo))
         .data;
-
-      console.log(loginResponse);
       if (loginResponse?.message && setAlert) {
         setAlert({
           error: 'Error',
@@ -33,18 +31,43 @@ const AuthProvider = ({ children }: Props) => {
           shown: true,
         });
       } else {
-        // TODO: save JWT that api will send
+        localStorage.setItem('id', loginResponse?.token);
         setActiveUser(loginResponse);
       }
     },
     [activeUser]
   );
 
-  const logoutUser = useCallback(async () => {}, [activeUser]);
+  const getUserInfo = useCallback(async () => {
+    await apiCallAlertWrapper(
+      async () => {
+        const jwtToken = localStorage.getItem('id');
+
+        if (jwtToken) {
+          const data = (await HttpClient(jwtToken).get('/user')).data;
+          setActiveUser(data);
+        } else {
+          logoutUser();
+        }
+      },
+      setAlert,
+      undefined,
+      () => logoutUser()
+    );
+  }, [activeUser]);
+
+  const logoutUser = useCallback(() => {
+    setActiveUser(undefined);
+    localStorage.clear();
+    sessionStorage.clear();
+  }, [activeUser]);
 
   useEffect(() => {
+    getUserInfo()
+      .then(() => {})
+      .catch(() => {});
     // TODO: login if session is intact
-  }, [activeUser]);
+  }, []);
 
   return (
     <AuthContext.Provider

@@ -120,6 +120,6 @@ export interface IUser {
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;
-  tokens?: string;
+  token?: string;
   lastLoginAt?: Date;
 }

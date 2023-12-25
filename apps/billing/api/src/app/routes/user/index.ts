@@ -9,7 +9,7 @@ export default async (instance: FastifyInstance) => {
   instance.post('/login', async (req, rep) => {
     const requestBody = req.body as IUser;
     if (requestBody.username) {
-      const result = await prisma.user.findFirst({
+      const loggedInUser = await prisma.user.findFirst({
         where: {
           email: {
             mode: 'insensitive',
@@ -25,23 +25,35 @@ export default async (instance: FastifyInstance) => {
           addressLine1: true,
           addressLine2: true,
           telephone: true,
-          roleId: true,
-          Role: true,
+          Role: {
+            select: {
+              Permissions: {
+                select: {
+                  Action: true,
+                  Resource: true,
+                },
+              },
+            },
+          },
           createdAt: true,
           updatedAt: true,
           lastLoginAt: true,
         },
       });
-      if (result && result.username) {
+      if (loggedInUser && loggedInUser.username) {
         await prisma.user.update({
           where: {
-            id: result.id,
+            id: loggedInUser.id,
           },
           data: {
             updatedAt: new Date(),
           },
         });
-        return rep.status(200).send(result);
+
+        const jwtToken = instance.jwt.sign(loggedInUser);
+
+        delete loggedInUser.id;
+        return rep.status(200).send({ ...loggedInUser, token: jwtToken });
       } else {
         return rep
           .status(200)
@@ -49,6 +61,13 @@ export default async (instance: FastifyInstance) => {
       }
     }
     return rep.badRequest('No username found');
+  });
+  instance.get('/', (req, reply) => {
+    const loggedInUser = instance.jwt.decode(req.headers.authorization);
+
+    const jwtToken = instance.jwt.sign(loggedInUser);
+
+    reply.status(200).send({ ...loggedInUser['payload'], token: jwtToken });
   });
 };
 

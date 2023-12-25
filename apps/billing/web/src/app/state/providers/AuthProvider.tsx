@@ -66,7 +66,6 @@ const AuthProvider = ({ children }: Props) => {
     getUserInfo()
       .then(() => {})
       .catch(() => {});
-    // TODO: login if session is intact
   }, []);
 
   return (

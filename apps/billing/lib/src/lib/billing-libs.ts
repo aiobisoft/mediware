@@ -121,4 +121,5 @@ export interface IUser {
   updatedAt?: Date;
   deletedAt?: Date;
   tokens?: string;
+  lastLoginAt?: Date;
 }

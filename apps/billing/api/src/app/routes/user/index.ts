@@ -19,6 +19,7 @@ export default async (instance: FastifyInstance) => {
           deletedAt: null,
         },
         select: {
+          id: true,
           username: true,
           email: true,
           addressLine1: true,
@@ -28,9 +29,18 @@ export default async (instance: FastifyInstance) => {
           Role: true,
           createdAt: true,
           updatedAt: true,
+          lastLoginAt: true,
         },
       });
       if (result && result.username) {
+        await prisma.user.update({
+          where: {
+            id: result.id,
+          },
+          data: {
+            updatedAt: new Date(),
+          },
+        });
         return rep.status(200).send(result);
       } else {
         return rep

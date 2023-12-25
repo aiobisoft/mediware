@@ -93,6 +93,7 @@ model User {
   telephone    String?
   addressLine1 String?
   addressLine2 String?
+  lastLoginAt  DateTime? @default(now())
   createdAt    DateTime? @default(now())
   updatedAt    DateTime? @default(now())
   deletedAt    DateTime? @default(dbgenerated("NULL"))

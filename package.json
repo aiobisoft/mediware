@@ -1,10 +1,18 @@
 {
   "name": "@mediware/source",
+  "displayName": "Mediware",
+  "description": "Your Precision Partner",
+  "author": {
+    "email": "abubakar.mughal2ooo@icloud.com",
+    "name": "Abu Bakar Asif",
+    "url": "https://github.com/abubakar2000"
+  },
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
     "clear": "nx reset",
-    "dev": "concurrently \"nx run billing-api:serve:development\" \"nx run billing-web:serve:development\"",
+    "dev-old": "concurrently \"nx run billing-api:serve:development\" \"nx run billing-web:serve:development\"",
+    "dev": " npx nx run-many --target=serve --projects=billing-api,billing-web",
     "migrate": "prisma db push",
     "studio": "prisma studio",
     "wipe":"dropdb mediware",

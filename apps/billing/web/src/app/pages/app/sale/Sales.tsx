@@ -65,11 +65,11 @@ const Sales = () => {
   const getFilteredData = useCallback(() => {
     if (saleInvoiceList)
       return saleInvoiceList
-        .map((supplier) => ({
-          Invoice: supplier.saleInvoiceId,
-          Customer: supplier.customerName,
-          'Phone No.': supplier.telephone,
-          Whatsapp: supplier.whatsapp,
+        .map((customer) => ({
+          Invoice: customer.saleInvoiceId,
+          Customer: customer.customerName,
+          'Phone No.': customer.telephone,
+          Whatsapp: customer.whatsapp,
         }))
         ?.filter(
           (data) =>

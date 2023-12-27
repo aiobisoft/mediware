@@ -15,8 +15,6 @@ export default async function (fastify: FastifyInstance) {
         type: true,
         code: true,
         unitTakePrice: true,
-        // uncomment if you need all the invoices containing this medicines
-        // InvoiceMedicines: true,
         createdAt: true,
         updatedAt: true,
         packing: true,
@@ -39,7 +37,7 @@ export default async function (fastify: FastifyInstance) {
       },
     });
 
-    const medicineCount = await prisma.invoiceMedicines.groupBy({
+    const medicineCountSupplierInvoice = await prisma.invoiceMedicines.groupBy({
       where: {
         deletedAt: null,
         Invoice: {
@@ -52,16 +50,42 @@ export default async function (fastify: FastifyInstance) {
       },
     });
 
+    const medicineCountCustomerInvoice = await prisma.saleInvoiceItems.groupBy({
+      where: {
+        deletedAt: null,
+        SaleInvoices: {
+          deletedAt: null,
+        },
+      },
+      by: 'medicinesId',
+      _sum: {
+        quantity: true,
+      },
+    });
+
     const medicineWithCount = medicine?.map((medicine) => {
-      const count = medicineCount?.find((mc) => mc.medicineId === medicine.id);
+      const countPurchase = medicineCountSupplierInvoice?.find(
+        (mc) => mc.medicineId === medicine.id
+      );
+      const countSold = medicineCountCustomerInvoice?.find(
+        (mc) => mc.medicinesId === medicine.id
+      );
+      const total =
+        (countPurchase?._sum?.quantity || 0) - (countSold?._sum?.quantity || 0);
 
       return {
         ...medicine,
-        quantityInStock: count?._sum?.quantity || 0,
+        quantityInStock: total,
       };
     });
 
-    return reply.status(200).send(medicineWithCount);
+    return reply
+      .status(200)
+      .send(
+        medicineWithCount.sort((a, b) =>
+          a.quantityInStock > b.quantityInStock ? 1 : -1
+        )
+      );
   });
 
   fastify.get('/:id', async function (request, reply) {

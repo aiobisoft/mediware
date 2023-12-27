@@ -66,7 +66,7 @@ const InvoiceItemPicker = ({ invoiceData, setInvoiceData }: Props) => {
     [newInvoiceItemBeingEntered]
   );
 
-  const getFilteredMedicineList = () => {
+  const filteredMedicine = useMemo(() => {
     const result = medicineList?.filter((med) =>
       med.name?.toLowerCase().includes(medicineSearchName?.toLowerCase())
     );
@@ -74,7 +74,7 @@ const InvoiceItemPicker = ({ invoiceData, setInvoiceData }: Props) => {
       return result;
     }
     return [];
-  };
+  }, [medicineSearchName, medicineList]);
 
   const onSelectInvoiceItem = useCallback(
     (med: IMedicine) => {
@@ -188,7 +188,7 @@ const InvoiceItemPicker = ({ invoiceData, setInvoiceData }: Props) => {
             />
           }
         >
-          {getFilteredMedicineList()?.map((med) => (
+          {filteredMedicine?.map((med) => (
             <div
               key={med.id}
               onClick={() => onSelectInvoiceItem(med)}

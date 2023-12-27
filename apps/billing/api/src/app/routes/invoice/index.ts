@@ -147,7 +147,7 @@ export default async function (fastify: FastifyInstance) {
         }
       );
 
-      const results = await Promise.all(creationTasks);
+      const results = await Promise.allSettled(creationTasks);
 
       rep.send(200).send({ data: results });
     } catch (error) {
@@ -233,7 +233,7 @@ export default async function (fastify: FastifyInstance) {
         }
       );
 
-      const results = await Promise.all(creationTasks);
+      const results = await Promise.allSettled(creationTasks);
 
       rep.status(200).send({ message: results });
     } catch (error) {

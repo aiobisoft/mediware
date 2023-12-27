@@ -132,6 +132,7 @@ export interface ISaleInvoice {
   Items: ISaleInvoiceItem[];
   customerName: string;
   telephone?: string;
+  email?: string;
   address?: string;
   whatsapp?: string;
   dicountPrice: number;
@@ -148,7 +149,7 @@ export interface ISaleInvoiceItem {
   Medicine?: IMedicine;
   medicinesId: number;
   quantity: number;
-  comments: number;
+  comments: string;
   unitSalePrice: number;
   quantitySoldFromPack: number;
   createAt?: Date;

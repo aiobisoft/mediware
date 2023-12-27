@@ -79,7 +79,7 @@ const Medicines = () => {
           Packing: medicine.packing,
           Brand: medicine.brand,
           Quantity: medicine.quantityInStock,
-          Price: medicine.unitTakePrice,
+          'Unit Price': medicine.unitTakePrice,
         }))
         ?.filter(
           (data) =>

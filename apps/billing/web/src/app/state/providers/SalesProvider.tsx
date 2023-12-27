@@ -10,6 +10,7 @@ import { ISaleInvoice } from '@billinglib';
 import { HttpClient, apiCallAlertWrapper } from '../../utils/common';
 import { AuthContext } from '../contexts/AuthContext';
 import { useAlert } from './AlertProvider';
+import { MedicineContext } from '../contexts/MedicineContext';
 
 interface Props {
   children: ReactNode | ReactNode[];
@@ -19,14 +20,18 @@ const SalesProvider = ({ children }: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [saleInvoiceList, setSaleInvoiceList] = useState<ISaleInvoice[]>([]);
   const { activeUser, logoutUser } = useContext(AuthContext);
+  const { getMedicines } = useContext(MedicineContext);
   const { setAlert } = useAlert();
 
   const getSaleInvoices = useCallback(async () => {
     await apiCallAlertWrapper(
       async () => {
         setIsLoading(true);
-        // const data = (await HttpClient(activeUser?.token).get('/sales')).data;
-        // setSaleInvoiceList(data);
+        const data = (await HttpClient(activeUser?.token).get('/sales')).data;
+        setSaleInvoiceList(data);
+        if (getMedicines) {
+          await getMedicines();
+        }
       },
       setAlert,
       setIsLoading,
